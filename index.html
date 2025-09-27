@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>48 Laws of Power — Interactive Guide</title>
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --accent:#7c3aed; --glass:rgba(255,255,255,0.6);
+    }
+    [data-theme="dark"]{--bg:#0b1020; --card:#0f1724; --muted:#9aa4bf; --accent:#a78bfa; --glass:rgba(255,255,255,0.04)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;color:var(--muted);background:linear-gradient(180deg,var(--bg),#e9eefb);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+    .app{width:100%;max-width:980px}
+    header{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:0 6px 20px rgba(12,15,30,0.15)}
+    h1{margin:0;font-size:20px;color:var(--card);background:linear-gradient(90deg,#fff0, #fff);-webkit-background-clip:text;background-clip:text}
+    .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+    .theme-toggle{padding:8px 12px;border-radius:10px;background:var(--card);border:1px solid rgba(0,0,0,0.04);cursor:pointer}
+    main{display:grid;grid-template-columns:320px 1fr;gap:18px}
+    .panel{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(2,6,23,0.08)}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+    select{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(15,23,42,0.04);font-weight:600;background:transparent;color:inherit}
+    .search{display:flex;gap:8px;margin-top:12px}
+    input[type=text]{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06)}
+    .btn{padding:10px 12px;border-radius:10px;border:none;background:var(--accent);color:white;font-weight:600;cursor:pointer}
+    .content{display:flex;flex-direction:column;gap:12px}
+    .card-title{font-size:18px;color:var(--accent);font-weight:700}
+    .card{padding:14px;border-radius:12px;background:linear-gradient(180deg,var(--glass),transparent);border:1px solid rgba(0,0,0,0.03)}
+    .muted-small{font-size:13px;color:var(--muted)}
+    .examples{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    pre{white-space:pre-wrap;font-family:inherit;margin:0}
+    .footer-note{font-size:12px;color:var(--muted);margin-top:8px}
+    @media (max-width:860px){main{grid-template-columns:1fr} .examples{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header>
+      <div class="brand">
+        <div class="logo">48</div>
+        <div>
+          <h1>48 Laws — Interactive Guide</h1>
+          <div class="muted-small">Choose any law to see a concise summary, examples, explanation and ways to apply it.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="muted-small">Theme</div>
+        <button class="theme-toggle" id="themeToggle">Toggle Dark/Light</button>
+      </div>
+    </header>
+
+    <main>
+      <aside class="panel">
+        <label for="lawSelect">Select a law</label>
+        <select id="lawSelect"></select>
+
+        <div style="margin-top:14px">
+          <label for="searchInput">Quick search (title keywords)</label>
+          <div class="search">
+            <input id="searchInput" type="text" placeholder="Type keyword & press Go" />
+            <button class="btn" id="searchBtn">Go</button>
+          </div>
+        </div>
+
+        <div class="footer-note">Note: This guide uses short summaries and original explanations rather than verbatim copyrighted passages from the book. If you have specific quotations you own or are allowed to reproduce, paste them into the editor and I can include them verbatim.</div>
+      </aside>
+
+      <section class="panel content">
+        <div class="card">
+          <div class="card-title" id="lawTitle">Choose a law from the left</div>
+          <div class="muted-small" id="lawSubtitle">Law number • short title</div>
+        </div>
+
+        <div class="card">
+          <strong>Summary (what the law means)</strong>
+          <p id="lawSummary" style="margin-top:8px">Brief summary will appear here.</p>
+        </div>
+
+        <div class="card">
+          <strong>Examples from history & the book (paraphrased)</strong>
+          <div class="examples" id="lawExamples">
+            <div><em>Example 1</em><p id="ex1">—</p></div>
+            <div><em>Example 2</em><p id="ex2">—</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Explanation & psychological mechanics</strong>
+          <p id="lawExplain">—</p>
+        </div>
+
+        <div class="card">
+          <strong>How to implement in real life (practical steps)</strong>
+          <ol id="lawSteps"></ol>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Data for 48 laws. Each entry: {num, title, summary, examples:[...], explain, steps:[...]}
+    const laws = [
+      {num:1,title:"Never Outshine the Master",summary:"Make those above you feel superior; don't show off to their detriment.",examples:["A young courtier who made his ruler look bad was sidelined.","Artists who praised patrons profited; those who outshone them were punished."],explain:"People in power are sensitive to threat; making them look better protects your position and opens opportunities.",steps:["Underplay talents around superiors.","Praise and consult them publicly.","Let them take credit for joint successes."]},
+      {num:2,title:"Never Put Too Much Trust in Friends, Learn to Use Enemies",summary:"Friends can be envious and lax; a former enemy has incentives to prove loyalty.",examples:["Hiring a skilled rival who then worked hard to prove loyalty.","Friends expecting favors that damaged performance."],explain:"Friends bring emotional baggage; converts from rivalry often become dependable allies.",steps:["Assess motives before trusting.","Give new roles to competent rivals with clear goals.","Keep checks in place for friends and allies."]},
+      {num:3,title:"Conceal Your Intentions",summary:"Keep your plans secret; misdirection prevents opposition.",examples:["Leaders who obscured strategy kept rivals off balance.","A general feigned retreat to lure the enemy."],explain:"If others cannot anticipate you, they can't counter you effectively.",steps:["Speak in broad terms, not specifics.","Use decoys or harmless goals to hide the true plan.","Stage small tests to observe reactions."]},
+      {num:4,title:"Always Say Less Than Necessary",summary:"Brevity creates mystery and keeps you from saying something damaging.",examples:["A ruler's terseness made others reveal more; loose talk led to missteps.","Ambiguous answers left room for maneuver."],explain:"Words can reveal weakness; silence projects control.",steps:["Practice concise answers.","Pause before replying to collect thoughts.","Let others fill silence; they may expose themselves."]},
+      {num:5,title:"So Much Depends on Reputation — Guard It With Your Life",summary:"Reputation is a force multiplier; defend and polish it.",examples:["A leader's strong reputation deterred challengers.","Scandals toppled previously powerful people."],explain:"Perception drives power — shape it intentionally.",steps:["Manage public image and respond quickly to attacks.","Create visible successes and allies.","Avoid actions that undercut credibility."]},
+      {num:6,title:"Court Attention at All Costs",summary:"Visibility translates to influence; be memorable but controlled.",examples:["Public spectacles elevated some leaders.","Those who faded from view lost influence despite competence."],explain:"People respond to prominence; obscurity reduces options.",steps:["Craft distinctive appearance or actions.","Use storytelling to make achievements memorable.","Avoid negative attention that damages reputation."]},
+      {num:7,title:"Get Others to Do the Work, but Take the Credit",summary:"Leverage others' skills to amplify your power while keeping credit.",examples:["Managers who delegated and presented results as theirs gained clout.","Inventors overshadowed by marketing teams who owned the narrative."],explain:"Organizing others is itself valuable; credit builds status.",steps:["Delegate clearly and spotlight outcomes.","Acknowledge team privately but build your public brand.","Document contributions while consolidating recognition."]},
+      {num:8,title:"Make Other People Come to You — Use Bait If Necessary",summary:"Pull rivals into your sphere where you control the terms.",examples:["Hosts who set meetings on their turf had the advantage.","Negotiators who drew opponents to them could set the agenda."],explain:"Controlling context shifts leverage.",steps:["Arrange meetings on your terms.","Offer tempting concessions that lead to larger gains.","Keep options open so others approach you."]},
+      {num:9,title:"Win Through Your Actions, Never Through Argument",summary:"Demonstrate results; arguments often entrench positions.",examples:["A leader who showed success converted skeptics faster than debate.","Arguments create defenders of their positions rather than change minds."],explain:"Action is persuasive; evidence bypasses ego.",steps:["Show prototypes or small wins.","Avoid fruitless debates; redirect to evidence.","Use demonstrations to settle disputes."]},
+      {num:10,title:"Infection: Avoid the Unhappy and Unlucky",summary:"Negativity and misfortune spread; associate with winners.",examples:["Partners of scandal-ridden people shared punishment.","Successful circles attract resources and opportunities."],explain:"Attitudes, reputations and networks transmit risk.",steps:["Assess associations for risk.","Limit exposure to chronic complainers.","Surround yourself with proactive people."]},
+      {num:11,title:"Learn to Keep People Dependent on You",summary:"Create value others can't easily replace to secure position.",examples:["Advisors who controlled vital information stayed indispensable.","Specialized skills made some professionals irreplaceable."],explain:"Dependence protects you from removal.",steps:["Develop unique expertise.","Control key relationships or information flows.","Offer indispensable benefits tied to your role."]},
+      {num:12,title:"Use Selective Honesty and Generosity to Disarm",summary:"Strategic small acts of honesty or generosity build trust and lower defenses.",examples:["A leader's humble confession eased suspicion.","A small unexpected gift won an ally."],explain:"Calculated goodwill opens doors and masks deeper aims.",steps:["Give small but meaningful gestures.","Admit minor faults to appear sincere.","Use generosity to create obligations."]},
+      {num:13,title:"When Asking for Help, Appeal to People’s Self-Interest",summary:"Frame requests so they benefit the other party.",examples:["Requests tied to a partner's gain succeeded more than emotional pleas.","Business deals framed as mutual benefited both sides."],explain:"People help when they see advantage, not just pity.",steps:["Highlight benefits for the other party.","Offer immediate, tangible returns.","Avoid demanding favors without reciprocation."]},
+      {num:14,title:"Pose as a Friend, Work as a Spy",summary:"Gather information discreetly; knowledge is power.",examples:["Leaders who listened captured rivals' intentions.","Casual conversations revealed strategic insights."],explain:"Subtle intelligence lets you act with foresight.",steps:["Ask open questions and listen more than speak.","Observe body language and offhand remarks.","Keep records of useful snippets."]},
+      {num:15,title:"Crush Your Enemy Totally",summary:"Half measures leave room for revenge; remove threats decisively.",examples:["Half-hearted defeats allowed rivals to regroup and strike back.","Complete wins deter further challenges."],explain:"Allowing an enemy to survive risks future retaliation.",steps:["Identify core threats and neutralize them thoroughly.","Close escape routes and resources.","Use symbolic actions to demonstrate finality."]},
+      {num:16,title:"Use Absence to Increase Respect and Honor",summary:"Strategic withdrawal can make your presence more valued.",examples:["Absence made audiences appreciate a performer more.","Leaders who stepped back were sought after again."],explain:"Scarcity increases perceived value.",steps:["Limit availability of your time or services.","Use breaks to recharge and create demand.","Make returns purposeful and impactful."]},
+      {num:17,title:"Keep Others in Suspended Terror: Cultivate an Air of Unpredictability",summary:"Unpredictability prevents opponents from formulating plans against you.",examples:["An unpredictable commander kept enemies off balance.","Erratic moves made rivals cautious and indecisive."],explain:"When others cannot predict you, they hesitate.",steps:["Change routines occasionally.","Reveal unexpected but controlled moves.","Avoid patterns that opponents can exploit."]},
+      {num:18,title:"Do Not Build Fortresses to Protect Yourself — Isolation is Dangerous",summary:"Isolation cuts you off from information and allies.",examples:["Hermit leaders missed shifts in power and fell from favor.","A visible presence keeps connections alive."],explain:"Being cut off leaves you vulnerable to surprises.",steps:["Maintain networks and open channels of intelligence.","Mix privacy with outreach.","Stay informed through diverse contacts."]},
+      {num:19,title:"Know Who You’re Dealing With — Do Not Offend the Wrong Person",summary:"Different people require different approaches; misjudging them is costly.",examples:["A careless insult led to an influential retaliation.","Understanding temperaments avoided unnecessary conflict."],explain:"Tailor your moves to personalities and histories.",steps:["Research backgrounds before challenging someone.","Use indirect approaches with volatile people.","Test reactions gently before escalating."]},
+      {num:20,title:"Do Not Commit to Anyone — It Is the Fools’ Way to Pick Sides",summary:"Remain flexible and independent to maximize options.",examples:["Opportunists who stayed uncommitted jumped to winners." ,"Early commitments trapped some as fortunes changed."],explain:"Committing too early narrows choices and attracts enemies.",steps:["Keep multiple alliances viable.","Avoid public vows that limit maneuvering.","Watch for changing tides and adapt."]},
+      {num:21,title:"Play a Sucker to Catch a Sucker — Seem Dumber Than Your Mark",summary:"Appearing less capable lures opponents into underestimating you.",examples:["Pretending ignorance let negotiators win concessions.","Feigned simplicity led rivals to lower their guard."],explain:"Underestimation can create strategic openings.",steps:["Allow others to reveal plans while you listen.","Use modesty strategically, not truly diminish yourself.","Strike when the opponent is overconfident."]},
+      {num:22,title:"Use the Surrender Tactic: Transform Weakness into Power",summary:"Yielding temporarily can reposition you and lower opposition.",examples:["A tactical surrender later enabled a stronger comeback.","Avoiding a fight preserved resources for later advantage."],explain:"Controlled retreats let you pick better fights.",steps:["Surrender symbolic points to gain time.","Conserve strength and rebuild quietly.","Use the pause to plan decisive moves."]},
+      {num:23,title:"Concentrate Your Forces",summary:"Focus resources on a single decisive point rather than spreading thin.",examples:["A concentrated attack broke a stronger but scattered defence.","Focused branding created a dominant niche."],explain:"Concentration multiplies impact.",steps:["Identify the one lever with highest ROI.","Allocate resources heavily to that focus.","Avoid distracting side projects until success is secure."]},
+      {num:24,title:"Play the Perfect Courtier",summary:"Master the art of adaptability, grace, and subtle influence in courts and organizations.",examples:["Courtiers who flattered artfully gained promotions.","Those who displayed awkward honesty were edged out."],explain:"Soft power and charm often succeed where force fails.",steps:["Learn protocol and etiquette.","Flatter but be tasteful; read moods.","Be useful, discreet, and loyal in visible ways."]},
+      {num:25,title:"Re-Create Yourself",summary:"Craft an identity that fits your aims and stands out.",examples:["Leaders who reinvented their image attracted new followers.","Public figures rebuilt brands after scandal."],explain:"Self-fashioning shapes how people treat you.",steps:["Decide the persona you need.","Align actions, visuals and language with it.","Consistently perform the role in public."]},
+      {num:26,title:"Keep Your Hands Clean",summary:"Use others to carry out dirty work; preserve your spotless image.",examples:["Leaders who used intermediaries avoided direct blame.","Delegating questionable tasks protected reputations."],explain:"Distance from wrongdoing maintains trust and power.",steps:["Use trusted agents for sensitive tasks.","Document your distance from unethical moves.","Be visibly philanthropic to offset suspicion."]},
+      {num:27,title:"Play on People’s Need to Believe to Create a Cultlike Following",summary:"Provide a narrative or image people can believe in and follow passionately.",examples:["Movements with clear myths retained supporters.","Charismatic leaders who offered certainty gathered loyal followings."],explain:"Meaning and certainty are powerful motivators.",steps:["Create a clear story and symbols.","Offer rituals or repeated messages.","Reward early followers visibly."]},
+      {num:28,title:"Enter Action with Boldness",summary:"Bold moves create momentum and intimidate hesitation.",examples:["A bold business pivot captured market attention.","Cautious moves often missed windows of opportunity."],explain:"Boldness signals confidence and shapes perception.",steps:["Plan carefully, then act decisively.","Project confidence in voice and visuals.","Use bold moves to break stalemates."]},
+      {num:29,title:"Plan All the Way to the End",summary:"Anticipate consequences and prepare contingencies to avoid surprises.",examples:["Successful campaigns considered succession and exit strategies.","Failing to plan endings caused collapse after initial wins."],explain:"End-state thinking prevents costly blindspots.",steps:["Map possible outcomes and responses.","Build exit plans and fallback options.","Communicate milestones to your team."]},
+      {num:30,title:"Make Your Accomplishments Seem Effortless",summary:"Conceal hard work; make success appear natural and graceful.",examples:["Performers hid rehearsals to create magic.","Leaders minimized visible toil to seem inherently gifted."],explain:"Effortless mastery inspires awe and reduces envy.",steps:["Practice to reduce visible strain.","Hide processes and show polished results.","Use storytelling to highlight ease, not struggle."]},
+      {num:31,title:"Control the Options: Get Others to Play With the Cards You Deal",summary:"Shape choices so any option benefits you.",examples:["Negotiators offered limited choices leading to desired outcome.","Product bundles guided customers to intended purchase."],explain:"Controlling frame of choice directs behavior.",steps:["Offer curated options with a clear preferred path.","Anchor choices to make desired option attractive.","Avoid giving unrestricted options that hurt your goals."]},
+      {num:32,title:"Play to People’s Fantasies",summary:"People prefer comforting illusions to harsh truths; offer attractive visions.",examples:["Marketers who sold dream outcomes succeeded.","Political messaging taps into hopeful narratives."],explain:"Appealing to desires moves people faster than facts.",steps:["Understand core fantasies of your audience.","Paint vivid positive outcomes.","Keep promises plausible to maintain trust."]},
+      {num:33,title:"Discover Each Man’s Thumbscrew",summary:"Find what drives or weakens someone and use it tactically.",examples:["Knowing a rival's vanity made them easy to manipulate.","Leaders used secrets to secure compliance."],explain:"Leverage is personal; emotional levers outperform logic.",steps:["Listen for insecurities and motives.","Use personalized incentives or pressure.","Exercise care — exploitation breeds lasting enemies."]},
+      {num:34,title:"Be Royal in Your Own Fashion: Act Like a King to Be Treated Like One",summary:"Carry yourself with dignity to command respect and attract followers.",examples:["Confident comportment elevated lesser figures to leadership.","Poor presentation undermined authority even with competence."],explain:"People respond to signals of status; behave as you want to be treated.",steps:["Invest in appearance and manners.","Speak calmly and with purpose.","Surround yourself with quality and standards."]},
+      {num:35,title:"Master the Art of Timing",summary:"Act at the right moment; patience and tempo are strategic weapons.",examples:["Business launches that waited for market readiness succeeded.","Rushed actions squandered advantages."],explain:"Timing amplifies results; haste wastes resources.",steps:["Watch cycles and sentiment indicators.","Delay until conditions favor you.","Be prepared to move quickly when the moment arrives."]},
+      {num:36,title:"Disdain Things You Cannot Have: Ignoring Them Is the Best Revenge",summary:"Desire shows weakness; ignoring what you lack reduces its power over you.",examples:["A spurned rival seeking revenge lost stature while ignore succeeded.","Obsessing over unattainable status led to reckless mistakes."],explain:"Indifference removes the bait from others and preserves dignity.",steps:["Choose what to show interest in and what to ignore.","Redirect attention to reachable goals.","Practice emotional detachment from certain outcomes."]},
+      {num:37,title:"Create Compelling Spectacles",summary:"Grand visuals and rituals fix attention and shape perception.",examples:["Ceremonies that dramatized power commanded loyalty.","Product reveals with spectacle drove buzz and sales."],explain:"People remember images more than arguments.",steps:["Design striking launches or moments.","Use symbols and theatrics to simplify complex messages.","Repeat visual themes to build recognition."]},
+      {num:38,title:"Think as You Like but Behave Like Others",summary:"Privately hold different views but outwardly conform to the group's norms to avoid trouble.",examples:["Innovators who hid controversial views kept influence.","Open rebels were often crushed early on.","],explain:"Conformity buys safety; quiet dissent preserves options.",steps:["Mask controversial ideas until you have support.","Use coded language with allies.","Pick moments to reveal differences strategically."]},
+      {num:39,title:"Stir Up Waters to Catch Fish",summary:"Create controlled chaos to unsettle opponents and expose opportunities.",examples:["Political actors who sowed confusion captured advantage.","Disruptive tactics disoriented incumbents."],explain:"Turbulence hides your moves and reveals others' weaknesses.",steps:["Introduce a surprise that forces decisions.","Be ready to exploit the resulting confusion.","Keep your own team steady amid the chaos."]},
+      {num:40,title:"Despise the Free Lunch",summary:"What is free often carries hidden costs; pay to maintain independence and perceived value.",examples:["Free offers that came with strings eroded autonomy.","Investing slightly in relationships preserved dignity and leverage."],explain:"Buying what you need prevents hidden obligations.",steps:["Pay fair prices for services you value.","Avoid accepting favors that reduce your options.","Use small reciprocal exchanges to build equality."]},
+      {num:41,title:"Avoid Stepping into a Great Man’s Shoes",summary:"Don't try to be your predecessor — carve your own path.",examples:["Successors who imitated admired leaders were judged lacking.","Reinventing allowed some to exceed predecessors."],explain:"Comparison sets you up to fail; novelty wins attention.",steps:["Identify gaps you can fill rather than copy past leaders.","Create a distinct identity early.","Blend continuity with selective innovation."]},
+      {num:42,title:"Strike the Shepherd and the Sheep Will Scatter",summary:"Eliminate or neutralize influential leaders of groups to dissolve resistance.",examples:["Removing a charismatic leader broke a faction's unity.","Targeting key organizers dispersed coordinated opposition."],explain:"Targets often center around figures; remove them and the group fragments.",steps:["Identify central figures and their influence nodes.","Use legal, reputational or structural tactics to neutralize them.","Offer alternatives to followers to reduce backlash."]},
+      {num:43,title:"Work on the Hearts and Minds of Others",summary:"Appeal to emotions and identities to win lasting loyalty.",examples:["Leaders who connected emotionally built committed followings.","Logical appeals alone often failed to move crowds."],explain:"Belief and identity sustain action beyond short-term incentives.",steps:["Tell stories that resonate emotionally.","Honor traditions and symbols that matter to people.","Reward loyalty publicly and personally."]},
+      {num:44,title:"Disarm and Infuriate with the Mirror Effect",summary:"Reflect opponents' actions back at them to confuse and unsettle.",examples:["Mirroring an aggressor's style exposed their contradictions.","Copying rhetoric made opponents seem petty."],explain:"A mirrored response can disorient by holding up a reflection they dislike.",steps:["Use imitation sparingly and strategically.","Adopt mannerisms or language that highlights the opponent's flaws.","Avoid escalating into needless tit-for-tat."]},
+      {num:45,title:"Preach the Need for Change, But Never Reform Too Much at Once",summary:"Introduce change gradually so it can be accepted without panic.",examples:["Gradual reforms succeeded where radical overhauls failed.","Small wins built momentum for larger shifts."],explain:"Human systems resist abrupt shocks; incrementalism secures stability.",steps:["Stage reforms in phases.","Secure small victories and build support.","Frame change as continuity plus improvement."]},
+      {num:46,title:"Never Appear Too Perfect",summary:"Show small flaws to deflect envy and make you approachable.",examples:["A leader's minor admissions humanized them and reduced resentment.","Perfection invited attacks and jealousy."],explain:"Imperfections lower perceived threat and open people to you.",steps:["Reveal minor mistakes strategically.","Share credit and mention small vulnerabilities.","Balance excellence with relatable humility."]},
+      {num:47,title:"Do Not Go Past the Mark You Aimed For; In Victory, Learn When to Stop",summary:"Know when to stop — pushing too far turns triumph into disaster.",examples:["Victors who overreached invited counterattacks.","Restraint preserved gains while greed squandered them."],explain:"Sustaining power often requires consolidation, not expansion.",steps:["Set clear end objectives before acting.","Consolidate wins and build defenses.","Resist temptation to chase every advantage."]},
+      {num:48,title:"Assume Formlessness",summary:"Be adaptable and fluid so opponents cannot predict or counter you.",examples:["Flexible strategies survived changing contexts better than rigid plans.","Camouflage and shifting tactics avoided traps."],explain:"Forces that can't be fixed are harder to strike against.",steps:["Avoid rigid plans; have multiple approaches.","Change styles to suit circumstances.","Cultivate diverse skills and alliances."]}
+    ];
+
+    const select = document.getElementById('lawSelect');
+    const titleEl = document.getElementById('lawTitle');
+    const subtitleEl = document.getElementById('lawSubtitle');
+    const summaryEl = document.getElementById('lawSummary');
+    const ex1 = document.getElementById('ex1');
+    const ex2 = document.getElementById('ex2');
+    const explainEl = document.getElementById('lawExplain');
+    const stepsEl = document.getElementById('lawSteps');
+
+    function populateSelect(){
+      laws.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.num-1;
+        opt.textContent = `${l.num}. ${l.title}`;
+        select.appendChild(opt);
+      });
+    }
+    function showLaw(idx){
+      const l = laws[idx];
+      titleEl.textContent = `${l.num}. ${l.title}`;
+      subtitleEl.textContent = `Law ${l.num}`;
+      summaryEl.textContent = l.summary;
+      ex1.textContent = l.examples[0] || '—';
+      ex2.textContent = l.examples[1] || '—';
+      explainEl.textContent = l.explain;
+      stepsEl.innerHTML = l.steps.map(s => `<li>${s}</li>`).join('');
+    }
+
+    populateSelect();
+    select.addEventListener('change', e=> showLaw(e.target.value));
+
+    // Enable keyboard search
+    document.getElementById('searchBtn').addEventListener('click', ()=>{
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      if(!q) return;
+      const found = laws.findIndex(l => (l.title + ' ' + l.summary).toLowerCase().includes(q));
+      if(found>=0){ select.value = found; showLaw(found); select.scrollIntoView({behavior:'smooth'}); }
+      else alert('No law found for that keyword')
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const root = document.documentElement;
+    const current = localStorage.getItem('theme') || 'light';
+    if(current==='dark') root.setAttribute('data-theme','dark');
+    themeToggle.addEventListener('click', ()=>{
+      const isDark = root.getAttribute('data-theme')==='dark';
+      if(isDark){ root.removeAttribute('data-theme'); localStorage.setItem('theme','light'); }
+      else{ root.setAttribute('data-theme','dark'); localStorage.setItem('theme','dark'); }
+    });
+
+    // Show first law by default
+    showLaw(0);
+  </script>
+</body>
+</html>
